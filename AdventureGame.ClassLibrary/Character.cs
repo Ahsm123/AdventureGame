@@ -35,10 +35,14 @@ public class Character
 
     public void LevelUp()
     {
-        if(ExperiencePoints == 999)
+        if (!IsAlive)
+        {
+            return;
+        }
+        while(ExperiencePoints >= 999)
         {
             Level++;
-            ExperiencePoints = 0;
+            ExperiencePoints -= 999;
         }
     }
     public bool GetIsAlive()

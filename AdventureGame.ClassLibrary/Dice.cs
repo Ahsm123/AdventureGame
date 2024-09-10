@@ -11,7 +11,7 @@ namespace AdventureGame.ClassLibrary
         Random random = new Random();
         public int Roll(int min, int max)
         {
-            return random.Next();
+            return random.Next(min, max + 1);
         }
     }
 }

@@ -3,6 +3,7 @@
 public class Character
 {
     public string Name { get; set; }
+    public int MaxHitpoints { get; private set; }
     public int Hitpoints { get; set; }
     public CharacterClassEnum CharacterClass { get; set; }
     public int Level { get; set; }
@@ -10,47 +11,45 @@ public class Character
     public int Gold { get; set; }
     public int ExperiencePoints { get; set; }
 
-    public readonly bool IsAlive;
+    public bool IsAlive => Hitpoints > 0;
 
     private static readonly Dice Dice = new Dice();
 
     public Character(string name, CharacterClassEnum characterClass)
     {
         Name = name;
-        Hitpoints = 100;
+        MaxHitpoints = 100;
+        Hitpoints = MaxHitpoints;
         CharacterClass = characterClass;
         Level = 0;
         Weapon = null;
         Gold = 0;
         ExperiencePoints = 0;
-        IsAlive = GetIsAlive();
+
 
     }
     public int Attack()
     {
-        if (Weapon == null) return 1;
+        if (Weapon == null) return Dice.Roll(1, 5);
 
-        return Dice.Roll(1, Weapon.Damage);
+        return Dice.Roll(1, Weapon.Damage + 1);
     }
 
-    public void LevelUp()
+    public void GainExperience(int xp)
     {
-        if (!IsAlive)
-        {
-            return;
-        }
-        while(ExperiencePoints >= 999)
+        ExperiencePoints += xp;
+
+
+        while (ExperiencePoints >= 999)
         {
             Level++;
             ExperiencePoints -= 999;
+
+
+            MaxHitpoints += 10;
+            Hitpoints = MaxHitpoints;
         }
     }
-    public bool GetIsAlive()
-    {
-        if (Hitpoints > 0) return true;
-        return false;
-    }
-
 
     public enum CharacterClassEnum { Warrior, Wizard, Thief };
 

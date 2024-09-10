@@ -12,30 +12,47 @@ public class Monster
     public int Hitpoints { get; set; }
     public MonsterClassEnum MonsterClass { get; set; }
     public int Gold { get; set; }
+    public int ExperiencePoints { get; set; }
     public Weapon? Weapon { get; set; }
-    public readonly bool IsAlive;
+    public bool IsAlive => Hitpoints > 0;
     private static readonly Dice Dice = new Dice();
-    public Monster(string name, MonsterClassEnum monsterClass)
+    public Monster(string name, MonsterClassEnum monsterClass, int hitpoints, int experiencePoints)
     {
         Name = name;
-        Hitpoints = 100;
+        Hitpoints = hitpoints;
         MonsterClass = monsterClass;
-        Gold = Dice.Roll(1, 25);
+        Gold = CalculateGold(monsterClass);
         Weapon = null;
-        IsAlive = GetIsAlive();
+        ExperiencePoints = experiencePoints;
     }
 
-    public int Attack(Dice dice)
+    public Monster Clone()
+    {
+        return new Monster(Name, MonsterClass, Hitpoints, ExperiencePoints)
+        {
+            Weapon = this.Weapon,
+            Gold = this.Gold
+        };
+    }
+
+    public int Attack()
     {
         if (Weapon == null) return 1;
         return Dice.Roll(1, Weapon.Damage);
     }
 
-    public bool GetIsAlive()
+    private int CalculateGold(MonsterClassEnum monsterClass)
     {
-        if (Hitpoints > 0) return true;
-        return false;
+        return monsterClass switch
+        {
+            MonsterClassEnum.Orc => Dice.Roll(1, 50),
+            MonsterClassEnum.Ogre => Dice.Roll(1, 100),
+            MonsterClassEnum.Goblin => Dice.Roll(1, 20),
+            MonsterClassEnum.Troll => Dice.Roll(1, 75),
+            _=> Dice.Roll(1, 25)
+        };
     }
+
 
     public enum MonsterClassEnum { Orc, Ogre, Goblin, Troll };
 

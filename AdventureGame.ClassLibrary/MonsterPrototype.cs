@@ -6,12 +6,16 @@ using System.Threading.Tasks;
 
 namespace AdventureGame.ClassLibrary
 {
-    class MonsterPrototype
+    public class MonsterPrototype
     {
-        public static Monster OrcPrototype = new Monster("PrototypeOrc", Monster.MonsterClassEnum.Orc) {Hitpoints = 120};
-        public static Monster OgrePrototype = new Monster("PrototypeOgre", Monster.MonsterClassEnum.Ogre) { Hitpoints = 150 };
-        public static Monster GoblinPrototype = new Monster("PrototypeGoblin", Monster.MonsterClassEnum.Goblin) { Hitpoints = 80 };
-        public static Monster TrollPrototype = new Monster("PrototypeTroll", Monster.MonsterClassEnum.Troll) { Hitpoints = 100 };
+        public static Monster OrcPrototype = new Monster("PrototypeOrc", Monster.MonsterClassEnum.Orc, 120, 100);
+        public static Monster OgrePrototype = new Monster("PrototypeOgre", Monster.MonsterClassEnum.Ogre, 150, 125);
+        public static Monster GoblinPrototype = new Monster("PrototypeGoblin", Monster.MonsterClassEnum.Goblin, 80, 60);
+        public static Monster TrollPrototype = new Monster("PrototypeTroll", Monster.MonsterClassEnum.Troll, 100, 80);
 
+        public static Monster GetOrc() => OrcPrototype.Clone();
+        public static Monster GetOgre() => OgrePrototype.Clone();
+        public static Monster GetGoblin() => GoblinPrototype.Clone();
+        public static Monster GetTroll() => TrollPrototype.Clone();
     }
 }

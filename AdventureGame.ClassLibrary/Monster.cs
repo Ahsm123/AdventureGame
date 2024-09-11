@@ -16,19 +16,19 @@ public class Monster
     public Weapon? Weapon { get; set; }
     public bool IsAlive => Hitpoints > 0;
     private static readonly Dice Dice = new Dice();
-    public Monster(string name, MonsterClassEnum monsterClass, int hitpoints, int experiencePoints)
+    public Monster(string name, MonsterClassEnum monsterClass, int hitpoints, int experiencePoints, Weapon? weapon)
     {
         Name = name;
         Hitpoints = hitpoints;
         MonsterClass = monsterClass;
         Gold = CalculateGold(monsterClass);
-        Weapon = null;
+        Weapon = weapon;
         ExperiencePoints = experiencePoints;
     }
 
     public Monster Clone()
     {
-        return new Monster(Name, MonsterClass, Hitpoints, ExperiencePoints)
+        return new Monster(Name, MonsterClass, Hitpoints, ExperiencePoints, Weapon)
         {
             Weapon = this.Weapon,
             Gold = this.Gold

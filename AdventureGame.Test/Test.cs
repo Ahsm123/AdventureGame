@@ -31,7 +31,7 @@ public class Test
         Monster.MonsterClassEnum expectedClass = Monster.MonsterClassEnum.Orc;
 
         //Act
-        Monster monster = new Monster(expectedName, expectedClass, 100, 100);
+        Monster monster = new Monster(expectedName, expectedClass, 100, 100, new Weapon("Axe", 500));
 
         //Assert
         Assert.That(monster.Name, Is.EqualTo(expectedName), "Names should be the same");
@@ -58,7 +58,7 @@ public class Test
     public void MonsterConstructorTest_DefaultValuesAreCorrect()
     {
         //Arrange
-        Monster monster = new Monster("Ogre", Monster.MonsterClassEnum.Ogre, 100, 125); 
+        Monster monster = new Monster("Ogre", Monster.MonsterClassEnum.Ogre, 100, 125, new Weapon("Axe", 20)); 
 
         //Assert
         Assert.That(monster.Hitpoints, Is.EqualTo(100), "Hitpoints are not equal");
@@ -107,7 +107,7 @@ public class Test
     {
         //Arrange
         Character character = new Character("Warr2", Character.CharacterClassEnum.Thief);
-        Monster monster = new Monster("Warr1", Monster.MonsterClassEnum.Ogre, 100, 80);
+        Monster monster = new Monster("Warr1", Monster.MonsterClassEnum.Ogre, 100, 80, new Weapon("Axe", 50));
 
         //Act
         monster.Hitpoints -= character.Attack();
@@ -122,7 +122,7 @@ public class Test
     {
         //Arrange
         Character character = new Character("Warr2", Character.CharacterClassEnum.Thief);
-        Monster monster = new Monster("Warr1", Monster.MonsterClassEnum.Ogre, 100, 80);
+        Monster monster = new Monster("Warr1", Monster.MonsterClassEnum.Ogre, 100, 80, new Weapon("Axe", 50));
 
         //Act
         character.Weapon = new Weapon("Axe", 20);
@@ -183,5 +183,7 @@ public class Test
         Assert.That(character.MaxHitpoints, Is.EqualTo(initialMaxHp + 10), "Max hitpoints shouldve increased");
         Assert.That(character.Hitpoints, Is.EqualTo(character.MaxHitpoints), "Hitpoints should be restored on level up");
     }
+
+
 
 }

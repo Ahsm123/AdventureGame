@@ -9,12 +9,25 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Characters\thief_1.jpg" />
+    <None Remove="Resources\Characters\thief_1.webp" />
+    <None Remove="Resources\Characters\warrior_1.jpg" />
+    <None Remove="Resources\Characters\wizard_1.jpg" />
     <None Remove="Resources\Monsters\goblin_1.jpg" />
     <None Remove="Resources\Monsters\ogre_1.jpg" />
     <None Remove="Resources\Monsters\orc_1.jpg" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Resources\Characters\thief_1.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Characters\warrior_1.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Characters\wizard_1.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\Monsters\goblin_1.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

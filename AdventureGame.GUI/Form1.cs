@@ -7,155 +7,105 @@ namespace AdventureGame.GUI;
 
 public partial class Form1 : Form
 {
-    private Character player = null!;
-    private Monster currentMonster = null!;
+    private GameController GameController;
+    private CombatLog CombatLog;
 
     public Form1()
     {
         InitializeComponent();
+        CombatLog = new CombatLog(TxtBoxCombatLog);
+        GameController = new GameController();
     }
 
     private void Form1_Load(object sender, EventArgs e)
     {
-        InitializeGame();
+        UpdateUI();
+        CombatLog.AppendText("Welcome to the Adventure Game!\n", Color.Black, true);
     }
 
-    // Method to initialize the player and the first monster
-    private void InitializeGame()
+
+    public void UpdateUI()
     {
-        player = new Character("Player1", Character.CharacterClassEnum.Warrior);
-        player.Weapon = new Weapon("Gods Hand", 40);
-
-        // Create the first monster using the MonsterPrototype class
-        currentMonster = MonsterPrototype.GetOrc(); // Start with an Orc
-
-        // Update the UI with the player's stats and monster's stats
         UpdatePlayerStats();
         UpdateMonsterStats();
-        UpdateMonsterImage(currentMonster);
-
-        // Initialize the combat log (optional message at the start of the game)
-        TxtBoxCombatLog.AppendText("Welcome to the Adventure Game! A wild Orc appears!\n");
+        UpdateMonsterImage(GameController.CurrentMonster);
+        ShowPlayerImage(GameController.Player);
     }
 
     private void UpdatePlayerStats()
     {
-        LblPlayerStats.Text = $"HP: {player.Hitpoints}\nLevel: {player.Level}\nGold: {player.Gold}" +
-                              $"\nExperience: {player.ExperiencePoints}\nWeapon: {player.Weapon.Name}";
+        LblPlayerStats.Text = $"HP: {GameController.Player.Hitpoints}\nLevel: {GameController.Player.Level}\nGold: {GameController.Player.Gold}" +
+                              $"\nExperience: {GameController.Player.ExperiencePoints}\nWeapon: {GameController.Player.Weapon.Name}";
 
     }
     private void UpdateMonsterStats()
     {
-        LblMonsterStats.Text = $"Name: {currentMonster.Name}\nHP: {currentMonster.Hitpoints}";
+        LblMonsterStats.Text = $"Name: {GameController.CurrentMonster.Name}\nHP: {GameController.CurrentMonster.Hitpoints}";
     }
 
     private void BtnAttack_Click(object sender, EventArgs e)
     {
-        int playerDamage = player.Attack();
-        currentMonster.Hitpoints -= playerDamage;
+        PerformPlayerAttack();
 
-        AppendTextToCombatLog($"You attack the {currentMonster.Name} for {playerDamage} damage!\n", Color.Green);
-
-        if (!currentMonster.IsAlive)
+        if (!GameController.CurrentMonster.IsAlive)
         {
-            AppendTextToCombatLog($"{currentMonster.Name} is defeated!\n", Color.Red, true);
-
-            player.Gold += currentMonster.Gold;
-            player.GainExperience(currentMonster.ExperiencePoints);
-
-            UpdatePlayerStats();
-
-            // Spawn a new monster using the cloned prototype
-            currentMonster = GetRandomMonster();  // This will create a fresh clone
-            UpdateMonsterStats();
-            UpdateMonsterImage(currentMonster);
-
-            AppendTextToCombatLog("A new Orc appears!\n", Color.DarkCyan, true);
+            HandleMonsterDefeat();
         }
         else
         {
-            int monsterDamage = currentMonster.Attack();
-            player.Hitpoints -= monsterDamage;
-
-            AppendTextToCombatLog($"{currentMonster.Name} attacks back for {monsterDamage} damage!\n", Color.Red);
-
-            if (!player.IsAlive)
-            {
-                MessageBox.Show("You have been defeated! Game Over.");
-                Application.Exit();
-            }
-
-            UpdatePlayerStats();
-            UpdateMonsterStats();
-
-
+            PerformMonsterCounterAttack();
         }
+
+        UpdateUI();
     }
 
     private void BtnRest_Click(object sender, EventArgs e)
     {
-        player.Hitpoints = player.MaxHitpoints;  // Fully heal the player
-        UpdatePlayerStats();
-        TxtBoxCombatLog.AppendText("You rest and recover all your health.\n");
+        GameController.PlayerRest();
+        UpdateUI();
+        CombatLog.AppendText("You are fully recovered", Color.Green, true);
     }
 
     private void BtnQuit_Click(object sender, EventArgs e)
     {
-        Application.Exit();  // Close the game
+        Application.Exit();
     }
 
-    private Monster GetRandomMonster()
+    public void ShowPlayerImage(Character player)
     {
-        // Create an instance of the Random class
-        Random rnd = new Random();
+        string basePath = AppDomain.CurrentDomain.BaseDirectory;
+        string imagePath = Path.Combine(basePath, "Resources", "Characters");
 
-        // Get a random number between 0 and 3 (for 4 possible monsters)
-        int monsterIndex = rnd.Next(0, 4);
-
-        // Return a random monster based on the index
-        switch (monsterIndex)
+        imagePath = player.CharacterClass switch
         {
-            case 0:
-                return MonsterPrototype.GetOrc();
-            case 1:
-                return MonsterPrototype.GetOgre();
-            case 2:
-                return MonsterPrototype.GetGoblin();
-            case 3:
-                return MonsterPrototype.GetTroll();
-            default:
-                return MonsterPrototype.GetOrc();  // Fallback in case of error
+            Character.CharacterClassEnum.Warrior => Path.Combine(imagePath, "warrior_1.jpg"),
+            Character.CharacterClassEnum.Wizard => Path.Combine(imagePath, "wizard_1.jpg"),
+            Character.CharacterClassEnum.Thief => Path.Combine(imagePath, "thief_1.jpg"),
+            _ => Path.Combine(imagePath, "warrior_1.jpg")
+        };
+
+        if (File.Exists(imagePath))
+        {
+            pictureBox2.Image = Image.FromFile(imagePath);
+        }
+        else
+        {
+            MessageBox.Show("No image found: " + imagePath);
         }
     }
-
-    private void pictureBox1_Click(object sender, EventArgs e)
-    {
-        PictureBox pictureBox = new PictureBox();
-    }
-
     public void UpdateMonsterImage(Monster monster)
     {
         string basePath = AppDomain.CurrentDomain.BaseDirectory;
         string imagePath = Path.Combine(basePath, "Resources", "Monsters");
 
-        switch (monster.MonsterClass)
+        imagePath = monster.MonsterClass switch
         {
-            case Monster.MonsterClassEnum.Orc:
-                imagePath = Path.Combine(imagePath, "orc_1.jpg");
-                break;
-            case Monster.MonsterClassEnum.Ogre:
-                imagePath = Path.Combine(imagePath, "ogre_1.jpg");
-                break;
-            case Monster.MonsterClassEnum.Goblin:
-                imagePath = Path.Combine(imagePath, "goblin_1.jpg");
-                break;
-            case Monster.MonsterClassEnum.Troll:
-                imagePath = Path.Combine(imagePath, "orc_1.jpg");
-                break;
-            default:
-                imagePath = Path.Combine(imagePath, "orc_1.jpg");
-                break;
-        }
+            Monster.MonsterClassEnum.Orc => Path.Combine(imagePath, "orc_1.jpg"),
+            Monster.MonsterClassEnum.Ogre => Path.Combine(imagePath, "ogre_1.jpg"),
+            Monster.MonsterClassEnum.Goblin => Path.Combine(imagePath, "goblin_1.jpg"),
+            Monster.MonsterClassEnum.Troll => Path.Combine(imagePath, "orc_1.jpg"),
+            _ => Path.Combine(imagePath, "ogre_1.jpg")
+        };
 
         if (File.Exists(imagePath))
         {
@@ -163,27 +113,43 @@ public partial class Form1 : Form
         }
         else
         {
-            MessageBox.Show("No image found" + imagePath);
+            MessageBox.Show("No image found: " + imagePath);
         }
     }
 
-    private void AppendTextToCombatLog(string text, Color color, bool bold = false)
+    private void PerformPlayerAttack()
     {
-        TxtBoxCombatLog.SelectionStart = TxtBoxCombatLog.TextLength;
-        TxtBoxCombatLog.SelectionLength = 0;
+        int playerDamage = GameController.PlayerAttack();
+        CombatLog.AppendText($"Attacked for {playerDamage} damage!\n", Color.Green);
+    }
 
-        TxtBoxCombatLog.SelectionColor = color;
-        if (bold)
+    private void HandleMonsterDefeat()
+    {
+        CombatLog.AppendText($"{GameController.CurrentMonster.Name} is defeated!\n", Color.Red, true);
+
+        GameController.UpdateGoldAndExp();
+
+        GameController.CurrentMonster = GameController.GetRandomMonster();
+        CombatLog.AppendText("A new monsnter appears!\n", Color.DarkCyan, true);
+    }
+
+    private void PerformMonsterCounterAttack()
+    {
+        int monsterDamage = GameController.MonsterAttack();
+        CombatLog.AppendText($"You took {monsterDamage} damage!\n", Color.Red);
+
+        if (!GameController.Player.IsAlive)
         {
-            TxtBoxCombatLog.SelectionFont = new Font(TxtBoxCombatLog.Font, FontStyle.Bold);
+            HandlePlayerDefeat();
         }
-        TxtBoxCombatLog.AppendText(text);
-        TxtBoxCombatLog.SelectionColor = TxtBoxCombatLog.ForeColor;
-        TxtBoxCombatLog.ScrollToCaret();
     }
 
-    private void TxtBoxCombatLog_TextChanged(object sender, EventArgs e)
+    private void HandlePlayerDefeat()
     {
-
+        MessageBox.Show("You have been defeated! Game Over.");
+        Application.Exit();
     }
+
+
+
 }
